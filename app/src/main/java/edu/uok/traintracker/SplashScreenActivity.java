@@ -30,7 +30,8 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseAuth.addAuthStateListener(listener);
+        delaySplashScreen();
+
     }
 
     @Override
@@ -50,14 +51,15 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void init() {
-        providers = Arrays.asList(new AuthUI.IdpConfig.PhoneBuilder().build(),
+        providers = Arrays.asList(
+                new AuthUI.IdpConfig.PhoneBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build());
 
         firebaseAuth = FirebaseAuth.getInstance();
         listener = myFirebaseAuth -> {
             FirebaseUser user = myFirebaseAuth.getCurrentUser();
             if (user != null) {
-                delaySplashScreen();
+                Toast.makeText(this, "Welcome: " + user.getUid(), Toast.LENGTH_SHORT).show();
             } else {
                 showLoginLayout();
             }
@@ -75,14 +77,18 @@ public class SplashScreenActivity extends AppCompatActivity {
                 .createSignInIntentBuilder()
                 .setAuthMethodPickerLayout(authMethodPickerLayout)
                 .setIsSmartLockEnabled(false)
+                .setTheme(R.style.LoginTheme)
                 .setAvailableProviders(providers)
                 .build(), LOGIN_REQUEST_CODE);
     }
 
     private void delaySplashScreen() {
-        Completable.timer(5, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).
-                subscribe(() -> Toast.makeText(SplashScreenActivity.this, "Welcome: "
-                        + FirebaseAuth.getInstance().getCurrentUser().getUid(), Toast.LENGTH_SHORT).show());
+        Completable.timer(3, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).
+                subscribe(() ->
+                        // After show splash ask for login if not login
+                        firebaseAuth.addAuthStateListener(listener)
+
+                );
     }
 
 
