@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "377848649522",
+    "project_id": "traintracker-9d717",
+    "storage_bucket": "traintracker-9d717.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377848649522:android:d81a3c7a68156d2deba92b",
+        "android_client_info": {
+          "package_name": "edu.uok.traintracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377848649522-gbrugihlfjoac7u31gufb14h9d70cbh6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUTihMDk4Ci3vZopLlbMB7DB04kWluz-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "377848649522-gbrugihlfjoac7u31gufb14h9d70cbh6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

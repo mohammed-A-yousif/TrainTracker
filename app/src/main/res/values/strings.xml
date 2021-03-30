@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TrainTracker</string>
+    <string name="sign_in_with_phone">Sign In With Phone</string>
+</resources>
