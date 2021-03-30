@@ -28,6 +28,20 @@ public class SplashScreenActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener listener;
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(listener);
+    }
+
+    @Override
+    protected void onStop() {
+        if (firebaseAuth != null && listener != null) {
+            firebaseAuth.removeAuthStateListener(listener);
+        }
+        super.onStop();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -67,7 +81,8 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     private void delaySplashScreen() {
         Completable.timer(5, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).
-                subscribe(() -> Toast.makeText(SplashScreenActivity.this, "Splash Done!", Toast.LENGTH_SHORT).show());
+                subscribe(() -> Toast.makeText(SplashScreenActivity.this, "Welcome: "
+                        + FirebaseAuth.getInstance().getCurrentUser().getUid(), Toast.LENGTH_SHORT).show());
     }
 
 
