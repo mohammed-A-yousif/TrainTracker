@@ -71,4 +71,7 @@ dependencies {
 
     //location
     implementation 'com.google.android.gms:play-services-location:18.0.0'
+
+    //geoFire
+    implementation'com.firebase:geofire-android:3.0.0'
 }

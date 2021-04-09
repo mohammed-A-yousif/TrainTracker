@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -32,6 +34,13 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -39,6 +48,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import edu.uok.traintracker.Common;
 import edu.uok.traintracker.R;
 
 import static android.util.Log.e;
@@ -57,11 +67,41 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     SupportMapFragment mapFragment;
 
+    //online system
+    DatabaseReference onlineRef, currentUserRef, driverLocationRef;
+    GeoFire geofire;
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists())
+                currentUserRef.onDisconnect().removeValue();
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+
+        }
+    };
+
 
     @Override
     public void onDestroy() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        geofire.removeLocation(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        onlineRef.removeEventListener(valueEventListener);
         super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerOnlineSystem();
+    }
+
+    private void registerOnlineSystem() {
+        onlineRef.addValueEventListener(valueEventListener);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -81,6 +121,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void init() {
+
+        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+        driverLocationRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES);
+        currentUserRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES).child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        geofire = new GeoFire(driverLocationRef);
+
+        registerOnlineSystem();
+
         locationRequest = new LocationRequest();
         locationRequest.setSmallestDisplacement(10f);
         locationRequest.setInterval(5000);
@@ -95,11 +143,23 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 LatLng latLng = new LatLng(locationResult.getLastLocation().getLatitude(),
                         locationResult.getLastLocation().getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f));
+
+                //update location
+                geofire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid()
+                        , new GeoLocation(locationResult.getLastLocation().getLatitude()
+                                , locationResult.getLastLocation().getLongitude())
+                        , (key, error) -> {
+                            if (error != null)
+                                Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                            else
+                                Snackbar.make(mapFragment.getView(), "You are online", Snackbar.LENGTH_LONG).show();
+
+                        });
             }
         };
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
     }
 
@@ -118,7 +178,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         mMap.setOnMyLocationButtonClickListener(() -> {
-                            fusedLocationProviderClient.getLastLocation().addOnFailureListener(e -> Toast.makeText(getContext(), ""+e.getMessage(), Toast.LENGTH_SHORT).show()).addOnSuccessListener(location -> {
+                            fusedLocationProviderClient.getLastLocation().addOnFailureListener(e -> Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show()).addOnSuccessListener(location -> {
                                 LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
 
@@ -127,13 +187,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         });
 
                         // set layout button
-                        View locationButton = ((View)mapFragment.getView().findViewById(Integer.parseInt("1"))
-                        .getParent()).findViewById(Integer.parseInt("2"));
-                        RelativeLayout.LayoutParams params= (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+                        View locationButton = ((View) mapFragment.getView().findViewById(Integer.parseInt("1"))
+                                .getParent()).findViewById(Integer.parseInt("2"));
+                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
                         // right button
-                        params.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
-                        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE);
-                        params.setMargins(0,0,0,50);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+                        params.setMargins(0, 0, 0, 50);
                     }
 
                     @Override
