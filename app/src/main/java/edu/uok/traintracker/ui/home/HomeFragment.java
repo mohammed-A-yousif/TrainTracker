@@ -50,6 +50,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+
         try {
             boolean success = googleMap.setMapStyle(MapStyleOptions
                     .loadRawResourceStyle(getContext(), R.raw.train_maps_style));
