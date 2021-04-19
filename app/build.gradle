@@ -77,4 +77,11 @@ dependencies {
 
     //circle image
     implementation'de.hdodenhof:circleimageview:3.1.0'
+
+    //firebase storage
+    implementation'com.google.firebase:firebase-storage:19.2.2'
+
+    //glide
+    implementation'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor'com.github.bumptech.glide:compiler:4.11.0'
 }
