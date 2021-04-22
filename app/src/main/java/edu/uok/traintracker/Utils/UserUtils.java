@@ -4,11 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.drawerlayout.widget.DrawerLayout;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -17,7 +12,6 @@ import java.util.Map;
 
 import edu.uok.traintracker.Common;
 import edu.uok.traintracker.Model.TokenModel;
-import edu.uok.traintracker.Services.MyFirebaseMessagingService;
 
 public class UserUtils {
     public static void updateUser(View v, Map<String, Object> updateData) {
