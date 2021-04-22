@@ -178,7 +178,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         mMap.setOnMyLocationButtonClickListener(() -> {
-                            fusedLocationProviderClient.getLastLocation().addOnFailureListener(e -> Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show()).addOnSuccessListener(location -> {
+                            fusedLocationProviderClient.getLastLocation()
+                                    .addOnFailureListener(e -> Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show())
+                                    .addOnSuccessListener(location -> {
                                 LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
 

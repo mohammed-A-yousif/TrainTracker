@@ -1,6 +1,8 @@
 package edu.uok.traintracker.Utils;
 
+import android.content.Context;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -14,6 +16,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Map;
 
 import edu.uok.traintracker.Common;
+import edu.uok.traintracker.Model.TokenModel;
+import edu.uok.traintracker.Services.MyFirebaseMessagingService;
 
 public class UserUtils {
     public static void updateUser(View v, Map<String, Object> updateData) {
@@ -22,6 +26,18 @@ public class UserUtils {
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .updateChildren(updateData)
                 .addOnFailureListener(e -> Snackbar.make(v, e.getMessage(), Snackbar.LENGTH_SHORT).show()).addOnSuccessListener(aVoid -> Snackbar.make(v, "Update information successfully!", Snackbar.LENGTH_SHORT).show());
+
+    }
+
+    public static void updateToken(Context context, String token) {
+        TokenModel tokenModel = new TokenModel(token);
+
+        FirebaseDatabase.getInstance()
+                .getReference(Common.TOKEN_REFERENCE)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .setValue(tokenModel)
+                .addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show()).addOnSuccessListener(aVoid -> {
+        });
 
     }
 }
